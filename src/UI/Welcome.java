@@ -3,17 +3,8 @@ package UI;
 import javax.swing.*;
 import java.awt.*;
 
-public class Welcome {
-    public static void main(String[] args) {
-
-        JPanel panel = new JPanel();
-        JFrame frame = new JFrame();
-
-        frame.setSize(400, 400);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(panel);
-
-        panel.setLayout(null);
+class Welcome {
+     Welcome(JPanel panel, JFrame frame){
 
         JLabel welcome = new JLabel("Welcome");
         welcome.setBounds(150, 10, 165, 25);

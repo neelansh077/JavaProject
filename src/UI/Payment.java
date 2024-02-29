@@ -4,10 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Payment {
-    public static void main(String[] args) {
-
-        JPanel panel = new JPanel();
-        JFrame frame = new JFrame();
+    Payment(JPanel panel, JFrame frame) {
 
         frame.setSize(400, 400);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
