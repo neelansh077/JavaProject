@@ -32,7 +32,6 @@ class Station {
     }
 }
 
-
 public class Data {
     private String[] StationList = {
             "Dahisar(East)",
@@ -53,11 +52,14 @@ public class Data {
             "Lower Oshiwara",
             "Andheri (West)"
     };
-
     private int StationCount = 17;
     private Station[] Stations;
+
     private int TrainCount = 0;
     private Train[] Trains = new Train[34];
+
+    private int SmartCardCount = 10;
+    private SmartCard[] SmartCards = new SmartCard[SmartCardCount];
 
     public Timer timer = new Timer();
 
@@ -71,6 +73,7 @@ public class Data {
 
     class generateTrains extends TimerTask {
         public void run() {
+            System.out.println("Generate");
             if (TrainCount < 34) {
                 Trains[TrainCount] = new Train(
                         String.valueOf(TrainCount + 200),
@@ -89,7 +92,7 @@ public class Data {
                         1);
                 TrainCount++;
             }
-            
+
             new updateTrains().run();
             timer.schedule(new updateTime(), 5000);
         }
@@ -98,15 +101,13 @@ public class Data {
     class updateTime extends TimerTask {
         public void run() {
             System.out.println("Update");
-            for(int i = 0; i < TrainCount; i++){
+            for (int i = 0; i < TrainCount; i++) {
                 Trains[i].setTimeNextStation(Trains[i].getTimeNextStation() - 5);
             }
-            ctr --;
-            if(ctr != 0) {
+            ctr--;
+            if (ctr != 0) {
                 timer.schedule(new updateTime(), 5000);
-            }
-            else {
-                timer.schedule(new updateTrains(), 5000);
+            } else {
                 ctr = 5;
             }
         }
@@ -115,13 +116,14 @@ public class Data {
     class updateTrains extends TimerTask {
         public void run() {
             int end;
-            if(TrainCount > 34) {
+            if (TrainCount > 34) {
                 end = TrainCount;
             } else {
                 end = TrainCount - 2;
             }
 
             for (int i = 0; i < end; i++) {
+                System.out.println("Update Station");
                 if (Trains[i].getDirection() == 0) {
                     if (Trains[i].getCurrStation() == 15) {
                         Trains[i].setDirection(1);
@@ -146,10 +148,14 @@ public class Data {
     public Data() {
         Stations = new Station[StationCount];
 
-        int ctr = 0;
+        int ct = 0;
         for (String name : StationList) {
-            Stations[ctr] = new Station(name, String.valueOf(ctr + 200));
-            ctr++;
+            Stations[ct] = new Station(name, String.valueOf(ct + 200));
+            ct++;
+        }
+
+        for (int i = 0; i < SmartCardCount; i++){
+            SmartCards[i] = new SmartCard((i + 20), String.valueOf(i + 30), 100);
         }
 
         new initialize().run();
@@ -167,7 +173,7 @@ public class Data {
         return Stations;
     }
 
-    public Train[] getTrains(){
+    public Train[] getTrains() {
         return Trains;
     }
 
@@ -178,4 +184,56 @@ public class Data {
     public void endTimer() {
         timer.cancel();
     }
-} 
+
+    public void setStationList(String[] stationList) {
+        StationList = stationList;
+    }
+
+    public void setStationCount(int stationCount) {
+        StationCount = stationCount;
+    }
+
+    public void setStations(Station[] stations) {
+        Stations = stations;
+    }
+
+    public void setTrainCount(int trainCount) {
+        TrainCount = trainCount;
+    }
+
+    public void setTrains(Train[] trains) {
+        Trains = trains;
+    }
+
+    public int getSmartCardCount() {
+        return SmartCardCount;
+    }
+
+    public void setSmartCardCount(int smartCardCount) {
+        SmartCardCount = smartCardCount;
+    }
+
+    public SmartCard[] getSmartCards() {
+        return SmartCards;
+    }
+
+    public void setSmartCards(SmartCard[] smartCards) {
+        SmartCards = smartCards;
+    }
+
+    public Timer getTimer() {
+        return timer;
+    }
+
+    public void setTimer(Timer timer) {
+        this.timer = timer;
+    }
+
+    public int getCtr() {
+        return ctr;
+    }
+
+    public void setCtr(int ctr) {
+        this.ctr = ctr;
+    }
+}

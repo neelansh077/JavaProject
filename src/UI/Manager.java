@@ -18,6 +18,10 @@ public class Manager {
     private JFrame frame;
 
     private String selStation;
+    private String desStation;
+    private int fare;
+    private int sCardPin;
+    private String sCardNum;
     private Data data = new Data();
 
     public Manager() {
@@ -96,6 +100,7 @@ public class Manager {
             // + 1]);
             // System.out.println(String.valueOf(data.getTrains()[i].getTimeNextStation()));
             if (data.getTrains()[i].getDirection() == 0) {
+                System.out.println(data.getTrains()[i].getCurrStation());
                 if (data.getStationList()[data.getTrains()[i].getCurrStation() + 1] == selStation) {
                     userTxt = new JLabel(String.valueOf(data.getTrains()[i].getTimeNextStation()));
                 }
@@ -117,7 +122,7 @@ public class Manager {
         JButton bookTicket = new JButton("Book Ticket");
         bookTicket.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                // selStation = comboBox.getItemAt(comboBox.getSelectedIndex());
+                desStation = comboBox.getItemAt(comboBox.getSelectedIndex());
                 data.endTimer();
                 panel.removeAll();
                 Payment();
@@ -151,7 +156,23 @@ public class Manager {
         // frame.setVisible(true);
     }
 
+    int getIndex(String StationName) {
+        for (int i = 0; i < data.getStationCount(); i++) {
+            if (data.getStationList()[i] == StationName) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    void calculateFare() {
+        int distance = getIndex(desStation) - getIndex(selStation);
+        this.fare = distance * 10;
+    }
+
     void Payment() {
+        calculateFare();
+
         JLabel welcome = new JLabel("Payment");
         welcome.setBounds(10, 10, 165, 25);
         welcome.setFont(new Font("Arial", Font.PLAIN, 28));
@@ -161,6 +182,11 @@ public class Manager {
         selectStation.setBounds(140, 50, 250, 25);
         selectStation.setFont(new Font("Arial", Font.PLAIN, 18));
         panel.add(selectStation);
+
+        JLabel fare = new JLabel("Fare: " + this.fare);
+        fare.setBounds(200, 75, 250, 25);
+        fare.setFont(new Font("Arial", Font.PLAIN, 18));
+        panel.add(fare);
 
         String[] payment = { "Smart Card", "PAYTM", "Phone Pe", "G PAY", "BHIM UPI" };
         JComboBox<String> comboBox = new JComboBox<>(payment);
@@ -183,6 +209,19 @@ public class Manager {
         // frame.setVisible(true);
     }
 
+    int validateSmartCard() {
+        for (SmartCard card : data.getSmartCards()) {
+            if (card.getCardNum().equals(sCardNum) && card.getCardPin() == sCardPin) {
+                if (card.getBalance() > fare) {
+                    card.setBalance(card.getBalance() - fare);
+                    return card.getBalance();
+                }
+                return 1;
+            }
+        }
+        return 0;
+    }
+
     void SmartCard() {
         JLabel smartCard = new JLabel("Smart-Card");
         smartCard.setBounds(10, 10, 165, 25);
@@ -199,11 +238,24 @@ public class Manager {
         or.setFont(new Font("Arial", Font.PLAIN, 18));
         panel.add(or);
 
-
         JLabel txt2 = new JLabel("card machine");
         txt2.setBounds(52, 118, 500, 30);
         txt2.setFont(new Font("Arial", Font.PLAIN, 18));
         panel.add(txt2);
+
+        JLabel status = new JLabel("");
+        status.setBounds(10, 200, 500, 30);
+        status.setFont(new Font("Arial", Font.PLAIN, 15));
+        panel.add(status);
+
+        JButton bal = new JButton("Add Balance");
+        bal.setBounds(10, 230, 150, 30);
+        bal.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                panel.removeAll();
+                addBalance();
+            }
+        });
 
         JLabel cardNumber = new JLabel("Enter Card Number");
         cardNumber.setBounds(260, 70, 500, 30);
@@ -225,6 +277,61 @@ public class Manager {
 
         JButton pay = new JButton("Pay");
         pay.setBounds(300, 189, 60, 30);
+        pay.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                sCardNum = (cardNum.getText());
+                sCardPin = Integer.parseInt(enterPin.getText());
+                int res = validateSmartCard();
+                if (res == 0) {
+                    status.setText("Incorrect Card Number or PIN");
+                } else if (res == 1) {
+                    status.setText("Card Balance Low");
+                    panel.add(bal);
+
+                } else {
+                    status.setText("Payment Done, Remaining Balance: " + res);
+                    panel.add(bal);
+                }
+            }
+        });
+        panel.add(pay);
+
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    void addBalance() {
+        JLabel title = new JLabel("Add Balance");
+        title.setBounds(10, 10, 165, 25);
+        title.setFont(new Font("Arial", Font.PLAIN, 25));
+        panel.add(title);
+
+        JLabel txt = new JLabel("Choose Amount: ");
+        txt.setBounds(30, 100, 500, 30);
+        txt.setFont(new Font("Arial", Font.PLAIN, 18));
+        panel.add(txt);
+
+        JTextField balInput = new JTextField(20);
+        balInput.setBounds(30, 150, 150, 20);
+        panel.add(balInput);
+
+        JLabel status = new JLabel("");
+        status.setBounds(10, 175, 500, 30);
+        status.setFont(new Font("Arial", Font.PLAIN, 15));
+        panel.add(status);
+
+        JButton pay = new JButton("Add");
+        pay.setBounds(30, 200, 60, 30);
+        pay.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                for (SmartCard card : data.getSmartCards()) {
+                    if (card.getCardNum().equals(sCardNum) && card.getCardPin() == sCardPin) {
+                        card.setBalance(card.getBalance() + Integer.parseInt(balInput.getText()));
+                        status.setText("Balance Updated, New Balance: " + card.getBalance());
+                    }
+                }
+            }
+        });
         panel.add(pay);
 
         panel.revalidate();
